@@ -1,6 +1,16 @@
 from pyray import *
 from random import randint, choice
 
+# General entity class 
+class Entity:
+    alive = 1
+
+    def __init__(self, x, y, size, color):
+        self.x = x
+        self.y = y
+        self.size = size
+        self.color = color
+
 # Defining player 
 player = Rectangle(45,90,10,10)
 
@@ -12,24 +22,23 @@ bullets = []
 init_window(100, 100, "raylib spaceinvaders")
 set_target_fps(60)
 
-# Summon function for entities
-def summon_entity(x, y, size, color, entity_list: []):
-    entity_list.append(Entity(x,y,size,color))   
-
-# General entity class 
-class Entity:
-    alive = 1
-
-    def __init__(self, x, y, size, color):
-        self.x = x
-        self.y = y
-        self.size = size
-        self.color = color
+# Defining functions for entities
+def summon_entity(entity, entity_list: []):
+    entity_list.append(entity)   
+def draw_entity(entity):
+    draw_circle(entity.x,entity.y,entity.size,entity.color)
     
 while not window_should_close():
 
+    # Defining entities
+    bullet = Entity(int(player.x+5),int(player.y),3,RED)
+    enemy = Entity(randint(6,94),6,5,BLUE)
+
     begin_drawing()
     clear_background(BLACK)
+
+    # Drawing player
+    draw_rectangle_rec(player, WHITE)
 
     # Movement
     if is_key_down(KeyboardKey.KEY_A) and player.x > 0:
@@ -39,25 +48,20 @@ while not window_should_close():
 
     # Combat
     if is_key_pressed(KeyboardKey.KEY_SPACE):
-        summon_entity(int(player.x+5),int(player.y),3,RED,bullets)
+        summon_entity(bullet,bullets)
 
     if is_key_pressed(KeyboardKey.KEY_R):
-        summon_entity(randint(6,94),6,5,BLUE,enemies)
+        summon_entity(enemy,enemies)
 
-    # Removing dead entities and useen entities
+    # Draw entities
     for i in enemies:
-        if i.alive == 1:
-            draw_circle(i.x, i.y, i.size, i.color)
-        # else:
-        #     enemies.pop(i)
+        draw_entity(i)
 
     for i in bullets:
-        if i.alive == 1:
-            draw_circle(i.x, i.y, i.size, i.color)
-        # else:
-        #     bullets.pop(i)
+        draw_entity(i)
         i.y -= 1
 
+    # Removing dead entities and useen entities
     for obj in enemies[:]:
         if obj.alive != 1:
             del enemies[enemies.index(obj)]
@@ -70,16 +74,15 @@ while not window_should_close():
     # Detecting colision between a bullet and a enemy
     for b in bullets:
         for e in enemies:
-            if b.x - e.x < 3 + e.size and b.y - e.y < 3 + e.size and b.alive == 1 and e.alive == 1:
+            dist_x = abs(b.x - e.x)
+            dist_y = abs(b.y - e.y)
+            dist = dist_x + dist_y
+            if dist < 3 + e.size:
                 b.alive = 0
                 e.alive = 0
 
     # DEBUG
-    entities = len(bullets) + len(enemies)
-    draw_text(f'entities:{entities}',0,0,5,GREEN)
-
-    # Drawing player
-    draw_rectangle_rec(player, WHITE)
+    draw_text(f'bullets:{len(bullets)}\nenemies:{len(enemies)}',0,0,5,GREEN)
 
     end_drawing()
 
