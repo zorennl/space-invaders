@@ -9,9 +9,9 @@ debug = False
 class Entity:
     alive = 1
 
-    def __init__(self, sprite=None, index=None, rectangle=Rectangle, color=None):
+    def __init__(self, sprite=None, source=None, rectangle=Rectangle, color=None):
         self.sprite = sprite
-        self.index = index
+        self.source = source
         self.rectangle = rectangle
         self.color = color
 
@@ -39,8 +39,8 @@ def summon_entity(entity, entity_list: []):
 while not window_should_close():
 
     # Defining entities
-    bullet = Entity(None ,None, Rectangle(int(player_pos.x+8),int(player_pos.y), 3, 3), RED)
-    enemy = Entity(enemy_sprite, None, Rectangle(0,0,32,32),WHITE)
+    bullet = Entity(None ,None, Rectangle(int(player_pos.x+5.5),int(player_pos.y), 5, 5), RED)
+    enemy = Entity(enemy_sprite, Rectangle(0,0,25,33), Rectangle(0,0,32,32),WHITE)
 
     begin_drawing()
     clear_background(BLACK)
@@ -68,7 +68,7 @@ while not window_should_close():
 
     # Draw entities
     for i in enemies:
-        draw_texture(i.sprite, int(i.rectangle.x), int(i.rectangle.y), i.color)
+        draw_texture_rec(i.sprite,i.source,Vector2(i.rectangle.x,i.rectangle.y),i.color)
 
     for i in bullets:
         draw_rectangle(int(i.rectangle.x),int(i.rectangle.y),int(i.rectangle.width),int(i.rectangle.height),i.color)
