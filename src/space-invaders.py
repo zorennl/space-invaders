@@ -7,9 +7,9 @@ debug = False
 
 # General entity class 
 class Entity:
-    alive = 1
 
-    def __init__(self, sprite=None, source=None, rectangle=Rectangle, color=None):
+    def __init__(self, health, sprite=None, source=None, rectangle=Rectangle, color=None):
+        self.health = health
         self.sprite = sprite
         self.source = source
         self.rectangle = rectangle
@@ -35,12 +35,21 @@ enemy_sprite = load_texture(enemy_sprite)
 # Defining functions for entities
 def summon_entity(entity, entity_list: []):
     entity_list.append(entity)   
+
+def draw_entity_sprite(entity):
+    draw_texture_pro(entity.sprite,entity.source,entity.rectangle,Vector2(entity.rectangle.x,entity.rectangle.y),0,WHITE)
+
+def draw_entity_rec(entity):
+    draw_rectangle_rec(entity.rectangle,entity.color)
     
 while not window_should_close():
 
     # Defining entities
-    bullet = Entity(None ,None, Rectangle(int(player_pos.x+5.5),int(player_pos.y), 5, 5), RED)
-    enemy = Entity(enemy_sprite, Rectangle(0,0,25,33), Rectangle(0,0,32,32),WHITE)
+    bullet = Entity(1, None ,None, Rectangle(int(player_pos.x+5.5),int(player_pos.y), 5, 5), RED)
+    enemy = Entity(10, enemy_sprite, Rectangle(0,0,25,33), Rectangle(0,0,15.5,19.5),WHITE)
+
+
+
 
     begin_drawing()
     clear_background(BLACK)
@@ -68,20 +77,28 @@ while not window_should_close():
 
     # Draw entities
     for i in enemies:
-        draw_texture_rec(i.sprite,i.source,Vector2(i.rectangle.x,i.rectangle.y),i.color)
+        # draw_texture_rec(i.sprite,i.source,Vector2(i.rectangle.x,i.rectangle.y),i.color)
+        draw_entity_sprite(i)
 
     for i in bullets:
-        draw_rectangle(int(i.rectangle.x),int(i.rectangle.y),int(i.rectangle.width),int(i.rectangle.height),i.color)
+        # draw_rectangle(int(i.rectangle.x),int(i.rectangle.y),int(i.rectangle.width),int(i.rectangle.height),i.color)
+        draw_entity_rec(i)
         i.rectangle.y -= 1
 
     # Removing dead entities and useen entities
-    # for obj in enemies[:]:
-    #     if obj.alive != 1:
-    #         del enemies[enemies.index(obj)]
+    for obj in enemies[:]:
+        if obj.health == 0:
+            del enemies[enemies.index(obj)]
 
-    # for obj in bullets[:]:
-    #     if obj.alive != 1 or obj.y < -2:
-    #         del bullets[bullets.index(obj)]
+    for obj in bullets[:]:
+        if obj.health == 0 or obj.rectangle.y < -2:
+            del bullets[bullets.index(obj)]
+
+    for e in enemies:
+        for b in bullets:
+            if check_collision_recs(e.rectangle,b.rectangle):
+                e.health -= 1
+                b.health -= 1
 
     # DEBUG
     if debug:
